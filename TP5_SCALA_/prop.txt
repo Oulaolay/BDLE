@@ -1,0 +1,37 @@
+
+# ----------------------------------------
+# TME avec Spark, fichier de configuration
+# ----------------------------------------
+
+# voir modèle de fichier: /Infos/bd/spark-prop.conf
+# usage:
+#        spark-shell --properties-file spark-prop.conf
+
+
+
+spark.cores.max 8
+spark.ui.port 4040
+
+spark.app.name TME
+
+# Usage en mode local
+# -------------------
+
+spark.driver.memory 4G
+
+#pas de variable spark.master, par défaut on a:
+#spark.master local[*] 
+
+# desactiver le choix entre Pjoin et broadcast join
+spark.sql.autoBroadcastJoinThreshold -1
+
+# Usage en mode standalone
+# ------------------------
+
+#spark.executor.memory 10G
+
+# ajuster le nom du master en remplacant 999-99 par votre nom de machine
+# spark.master spark://ppti-14-999-99.ufr-info-p6.jussieu.fr:7077
+# Exemple: spark.master spark://ppti-14-302-01.ufr-info-p6.jussieu.fr:7077
+
+
