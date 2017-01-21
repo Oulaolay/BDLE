@@ -1,0 +1,59 @@
+sc.setLogLevel("ERROR")
+
+#Chargement
+val freebaseFile = "/home/poulain/Documents/Cours DAC/BDLE/data/freebase-projected-shorturls.txt"
+case class Triple(sujet: String, prop: String, objet: String)
+val TRIPLES = sc.textFile(freebaseFile).map(ligne => ligne.split("\t")).coalesce(32).map(tab => Triple(tab(0), tab(1), tab(2))).toDS()
+
+val t1 = TRIPLES.where("prop='<book.book.characters>'")
+val t2 = TRIPLES.where("prop='<book.book.genre> '")
+val t3 = TRIPLES.where("prop='<book.book.editions> '")
+
+val Join12 = t1.join(t2,"sujet")
+val Join123=Join12.join(t3,"sujet")
+#Pas de résultat
+
+#t pour Temporaire
+val t1=TRIPLES.where("prop='<people.person.education>'")
+val t2=TRIPLES.where("prop='<people.person.date_of_birth>'")
+val t3=TRIPLES.where("prop='<people.person.nationality>'")
+
+val t2F = t2.filter(x=>x.objet.contains("1990"))
+val t12 = t2F.join(t1,"sujet")
+val t123 = t12.join(t3,"sujet")
+
+
+
+
+val t1=TRIPLES.where("prop='<music.artist.album>'").withColumnRenamed("objet","top")
+val t2=TRIPLES.where("prop='<music.artist.genre>'")
+val t3=TRIPLES.where("prop='<music.artist.home_page>'")
+
+val ar1=t1.join(t2,"sujet")
+val ar=ar1.join(t3,"sujet")
+
+
+
+val t1=TRIPLES.where("prop='<music.album.release_date>'")
+val t2=TRIPLES.where("prop='<music.album.contributor>'")
+val t3=TRIPLES.where("prop='<music.album.featured_artists>'")
+
+val al1=t1.join(t2,"sujet")
+val al=al1.join(t3,"sujet")
+
+var total=ar.join(al.withColumnRenamed("sujet","top"),"top")
+
+
+Q4
+
+val t1=TRIPLES.where("prop='<music.recording.artist>'").withColumnRenamed("objet","ar")
+val t2=TRIPLES.where("prop='<music.artist.supporting_artists>'").withColumnRenamed("sujet","ar").withColumnRenamed("objet","sar")
+val t3=TRIPLES.where("prop='<music.artist.album>'").withColumnRenamed("sujet","sar")
+
+val al1=t1.join(t2,"ar")
+val al=al1.join(t3,"sar")
+/*al.take(10)*/
+
+
+
+Q5

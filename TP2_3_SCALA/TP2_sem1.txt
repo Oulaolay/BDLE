@@ -1,0 +1,34 @@
+val data = sc.textFile("/tmp/BDLE/dataset/freebase_extrait")
+
+var data1=data.map(x=>x.split("\t"))
+
+Sélectionner ceux qui ont la propriété caractère
+
+/*Notes : Pour utiliser case, il faut des n-uplets et non des tableaux.
+Pour transformer un tableau en n-uplet, on se sert de la fonction map */
+
+var carac = data1.filter(x=>x(1)=="<http://rdf.freebase.com/ns/book.book.characters>")
+var genre = data1.filter(x=>x(1)=="<http://rdf.freebase.com/ns/book.book.genre>")
+var edition = data1.filter(x=>x(1)=="<http://rdf.freebase.com/ns/book.book.editions>")
+/*
+Jointure:
+
+Ensemble 1 : (James, Guitare) (Marie Piano)
+		JOIN
+Ensemble 2 : (Marie, Alice) (Marie Bob)
+
+On veut connaitre les instruments et les amis d'une personne
+
+SQL :
+SELECT
+FROM Ensemble1, Ensemble2
+where E1.prenom=E2.prenom
+
+On ne sait manipuler le Join qu'avec des couples, il faut transformer ici notre triplet en couple
+*/
+var caracCouple = carac.map(x=> (x(0),x(2)))
+var caracGenre = genre.map(x=> (x(0),x(2)))
+var caracEdition = edition.map(x=> (x(0),x(2)))
+
+var Jointure = caracCouple.join(caracGenre)
+var Jointure2 = Jointure.join(caracEdition) {#On peut enchainer les jointures car on a toujours des couples clé valeur)
