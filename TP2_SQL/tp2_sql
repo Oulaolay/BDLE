@@ -1,0 +1,97 @@
+connect bdwa45/bdwa45@ora11
+
+select * from part;
+
+select c_name,c_custkey,sum(o_totalprice),RANK() OVER
+    (PARTITION BY c_custkey ORDER BY o_totalprice DESC) AS Rank
+from Customer cust,Orders ord
+where cust.c_custkey=ord.o_custkey
+--group by c_name,c_custkey,o_totalprice;
+-- TME Requêtes analytiques
+
+
+-- NOM1:
+-- Prénom1:
+
+-- NOM2:
+-- Prénom2:
+
+
+
+set sqlbl on
+set pagesize 200
+set linesize 100
+
+-- prompt les commandes
+-- desc orders
+
+-- prompt les clients
+-- desc Customer
+
+
+
+-- column montant_total format 9,999,999
+column montant_total format 9999999
+
+column n_name format A10
+
+
+--Afficher la liste des clients avec le montant total de leurs commandes.
+--Pour chaque client, donner son n° et le montant total de ses commandes. Trier le résultat par ordre décroissant du montant.
+--Afficher seulement les 10 premiers clients.
+--Compléter la requête précédente pour afficher le rang de chaque client.
+
+with T as (select c_custkey, sum(o_totalprice) as montant_total, RANK () over(order by sum(o_totalprice) desc) as RANK
+from Customer, Orders
+where c_custkey = o_custkey
+group by c_custkey)
+select *
+from T
+where rownum <=10;
+
+column n_nationkey format A10
+column nb_client format A10
+with T3 as (select n_nationkey,n_name,count(c_custkey) as nb_client,PERCENT_RANK() over(order by count(c_custkey) desc) as RANK
+from Nation,Customer
+where c_nationkey=n_nationkey
+group by n_nationkey,n_name)
+select *
+from T3
+where rownum <=20;
+
+prompt afficher les 10 meilleurs clients :
+column n_nationkey format A10
+column nb_client format A10
+column n_name format A10
+with T3 as (select c_nationkey ,n_name,count(c_custkey),dense_rank() over(order by count(c_custkey) desc) as DENSE_RANK
+from Nation,Customer
+where c_nationkey=n_nationkey
+group by c_nationkey,n_name)
+select *
+from T3
+where rownum <=10;
+
+
+column RANK format 9.99
+with T4 as (select c_nationkey,n_name,count(c_custkey) ,PERCENT_RANK() over(order by count(c_custkey) desc) as RANK
+from Nation,Customer
+where c_nationkey=n_nationkey
+group by c_nationkey,n_name)
+select *
+from T4
+where RANK <=0.2;
+
+
+
+
+
+with T5 as (select n_nationkey,n_name,count(c_custkey) as nb_client,PERCENT_RANK() over(PARTITION BY n_name order by count(c_custkey) desc) as RANK
+from Nation,Customer,Lineitem
+where c_nationkey=n_nationkey
+group by n_nationkey,n_name)
+select *
+from T5
+where RANK <=0.2;
+
+select o_orderdate as Date_order , avg(o_totalprice) OVER(order by o_orderdate RANGE BETWEEN INTERVAL '90' DAY PRECEDING AND CURRENT ROW) as montant_vendu
+from orders;
